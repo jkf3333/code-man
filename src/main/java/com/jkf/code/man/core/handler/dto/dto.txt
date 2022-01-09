@@ -1,0 +1,22 @@
+package com.jkf.code.man.result.${tableName};
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+${import}
+
+/**
+ * @author: ${author}
+ * @time: ${time}
+ * @desc: ${desc}
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ${pojoName} implements Serializable {
+    ${pojoFiled}
+}
+${end}

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${nameSpace}">
+    <resultMap id="${resultMap}"
+    type="${resultMapType}">
+        ${resultMapVal}
+    </resultMap>
+    <sql id="allColumn">
+        ${allColumn}
+    </sql>
+    <sql id="allColumnExcludeId">
+        ${allColumnExcludeId}
+    </sql>
+
+    <select id="findById" resultMap="${resultMap}">
+        select *
+        from ${tableName}
+        where #{primaryKey} = #{primaryKey}
+    </select>
+
+    <select id="list" paramaType="map" resultMap="${resultMap}">
+        select * from ${tableName}
+        <include>
+            <sql id="baseQuery"/>
+        </include>
+    </select>
+
+    <select id="count" paramaType="map" resultMap="${resultMap}">
+        select count(*) from ${tableName}
+        <include>
+            <sql id="baseQuery"/>
+        </include>
+    </select>
+
+    <select id="page" paramaType="map" resultMap="${resultMap}">
+        select * from ${tableName}
+        <include>
+            <sql id="baseQuery"/>
+        </include>
+        limit #{pageIndex},#{pageLimit}
+    </select>
+
+    <sql id="baseQuery">
+        ${baseQuery}
+    </sql>
+
+    <insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+        insert into ${tableName}
+        (${tableColumn})
+        values(${tableValue})
+    </insert>
+
+    <delete id="deleteById">
+        delete
+        from ${tableName}
+        where #{primaryKey} = #{primaryKey}
+    </delete>
+</mapper>
+${end}

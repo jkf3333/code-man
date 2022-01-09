@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace:填写映射当前的Mapper接口，所有的增删改查的参数和返回值类型，
+		就可以直接填写缩写，不区分大小写，直接通过方法名去找类型-->
+<mapper namespace="com.itheima.mapper.UserMapper">
+	<!-- sql:里面可以写入一个共同的sql代码，用于提取重复的代码。
+		要使用该代码的时候就直接使用<include>标签
+		id:为提取的sql代码，取一个id，起标识作用
+		 -->
+	<sql id="select">
+		select * from user
+	</sql>
+	<!-- public User findUserById(int id); 
+		id:填写在XxxMapper接口中的方法名
+		parameterType:填写参数的类型
+		resultType:填写方法中返回值的类型，不用写全路径，不区分大小写
+	-->
+	<select id="findUserById" parameterType="int" resultType="user">
+		<!-- include:用于加载提取公共的sql语句，与<sql>标签对应
+		       refid:填写<sql>标签中的id属性
+		 -->
+		<include refid="select"></include>
+		where id = #{id}
+	</select>
+	<!-- resultMap属性:与resultMap标签一起使用，填写resultMap标签中定义的id属性 -->
+	<select id="findAllOrders" resultMap="orders">
+		select * from orders
+	</select>
+	<!-- resultMap标签:用于自定义封装结果
+		type:最终结果还是封装到实体类中，type就是指定封装到哪一个类中
+		id:与<select>标签中的resultMap中的属性一直，一定要唯一
+		<id>:该标签是指定主键封装到实体类中的哪一个属性(可以省略)
+		<result>:该标签是其他的列封装到实体类中，一般只需填写实体类中的属性与表中列不同的项即可
+			property:填写实体类中的属性，column:填写表中的列名
+	 -->
+	<resultMap type="Orders" id="orders">
+		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+	</resultMap>
+	<!--  public void addUser(User user);
+		insert:用于执行添加语句；update:执行更新语句
+	   同样 delete:执行删除语句
+	 -->
+	<insert id="addUser" parameterType="user">
+		<!-- selectKey配置主键信息的标签
+			keyColumn:对应数据库表中的主键列
+			keyProperty:对应实体类中的属性
+			after:代表执行下面代码之前，先执行当前里面的代码
+		 -->
+		 <selectKey keyColumn="id" keyProperty="id" order="AFTER" resultType="int">
+		 	select LAST_INSERT_ID()
+		 </selectKey>
+		insert into user
+		(username,sex,address)
+		values(#{username},#{sex},#{address})
+	</insert>
+	<!-- public List<User> findUserBySexAndUsername(User user); -->
+	<select id="findUserBySexAndUsername" parameterType="User" resultType="user">
+		<!--select * from user  where 1=1 -->
+		<include refid="select"></include>
+		<!-- where标签:一个where条件语句，通常和<if>标签混合使用 -->
+		<where>
+		<!-- if标签:执行一个判断语句，成立才会执行标签体内的sql语句
+			test:写上条件判断语句
+			注意:这里每一个if前面都尽量加上and，如果你是第一个条件，框架会自动帮你把and截取，如果是第二个if就不能省略and
+		 -->
+		<if test="sex != null and sex != ''">
+			and sex = #{sex} 
+		</if>
+		<if test="username != null and username != ''">
+			and username like '%${username}%'
+		</if>
+		</where>
+	</select>
+	
+	<!-- public List<User> findUserByIds(QueryVo vo); -->
+	<!-- QueryVo:是一个实体包装类，通常用于封装实体类之外的一些属性-->
+	<select id="findUserByIds" parameterType="QueryVo" resultType="user">
+		<include refid="select"></include>
+		<where>
+		<!-- foreach:循环语句，通常多用于参数是集合时，需要对参数进行遍历出来，再进行赋值查询
+			collection:参数类型中的集合、数组的名字，例：下面的ids就是QueryVo这个类中的list集合的名字
+			item:为遍历该集合起一个变量名，遍历出来的每一个字，都赋值到这个item中
+			open:在sql语句前面添加的sql片段
+			close:在sql语句后面添加的sql片段
+			separator:指定遍历元素之前用什么分隔符
+		 -->
+		<foreach collection="ids" item="id" open="id in(" close=")" separator=",">
+			#{id}
+		</foreach>
+		</where>
+	</select>
+</mapper>
